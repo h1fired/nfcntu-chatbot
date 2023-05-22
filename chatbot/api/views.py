@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from users.models import UserProfile
 from .serializers import UserProfileSerializator
+from rest_framework import status
 
 @api_view(['GET'])
 def users_list(request):
@@ -14,10 +15,7 @@ def users_list(request):
 
 @api_view(['GET'])
 def user_detail(request, social_id):
-    try:
-        user = UserProfile.objects.get(social_id=social_id)
-    except UserProfile.DoesNotExist:
-        return HttpResponseNotFound()
+    user = UserProfile.objects.get(social_id=social_id)
     serialized_user = UserProfileSerializator(user, many=False)
     return Response(serialized_user.data)
 
@@ -31,7 +29,7 @@ def user_create_or_get(request):
     serializer = UserProfileSerializator(data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors)
 
