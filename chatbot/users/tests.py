@@ -5,6 +5,7 @@ from .models import UserProfile
 class UserProfileTests(TestCase):
     def test_user_creation(self):
         self.user = UserProfile.objects.create(
+            social_id='12345678',
             username='test_user1', 
             specialty='Computer Science', 
             group='IT-41', 
