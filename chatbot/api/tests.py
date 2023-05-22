@@ -6,6 +6,7 @@ from users.models import UserProfile
 from rest_framework import status
 
 class UserProfileAPITest(APITestCase):
+    
     def setUp(self):
         UserProfile.objects.create(social_id='12345678', username='test_user123')
     
