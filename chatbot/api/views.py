@@ -1,9 +1,11 @@
 from django.http import HttpResponseNotFound
+from django.db.models import Count
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from users.models import UserProfile
-from .serializers import UserProfileSerializator
+from contacts.models import Contact
+from .serializers import UserProfileSerializator, ContactSerializator
 from rest_framework import status 
 from .permissions import APIKeyPermission
 
@@ -52,4 +54,19 @@ def user_update(request, social_id):
         return Response(serializer.data)
     else:
         return Response(serializer.errors)
-    
+
+
+# Contacts
+@api_view(['GET'])
+@permission_classes([APIKeyPermission])
+def contact_list(request):
+    contacts = list(Contact.objects.all().values())
+    contact_dict = {}
+    for contact in contacts:
+        if contact['group'] not in contact_dict:
+            contact_dict[contact['group']] = []
+        contact_dict[contact['group']].append({
+            'name': contact['name'],
+            'contact': contact['contact']
+        })
+    return Response(contact_dict)
