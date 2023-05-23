@@ -5,9 +5,9 @@ from contacts.models import Contact
 class UserProfileSerializator(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['social_id', 'username', 'specialty', 'course_num', 'group']
+        fields = '__all__'
         
 class ContactSerializator(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ['name', 'contact', 'group']
+        fields = '__all__'
