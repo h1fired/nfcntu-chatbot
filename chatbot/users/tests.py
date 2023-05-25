@@ -1,7 +1,11 @@
+from rest_framework.test import APITestCase
+from rest_framework import status
 from django.test import TestCase
-from .models import UserProfile
+from django.urls import reverse
+from users.models import UserProfile
+from django.conf import settings
 
-# Create your tests here.
+
 class UserProfileTests(TestCase):
     def test_user_creation(self):
         self.user = UserProfile.objects.create(
@@ -13,3 +17,31 @@ class UserProfileTests(TestCase):
         )
         self.user.username = 'test_updated_user1'
         self.user.save()
+
+class UserProfileAPITest(APITestCase):
+    
+    def setUp(self):
+        UserProfile.objects.create(social_id='12345678', username='test_user123')
+    
+    def test_get_users(self):
+        response = self.client.get(reverse('users-list'), None, **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+    def test_get_user(self):
+        response = self.client.get(reverse('users-detail', kwargs={'social_id': 12345678}), None, **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_create_or_get_user(self):
+        data = {
+            'social_id': '12345',
+            'username': 'test_create_user1'
+        }
+        response = self.client.post(reverse('users-list'), data, format='json', **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    
+    def test_update_user(self):
+        data = {
+            'username': 'test_update_user6'
+        }
+        response = self.client.patch(reverse('users-detail', kwargs={'social_id': 12345678}), data, format='json', **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
