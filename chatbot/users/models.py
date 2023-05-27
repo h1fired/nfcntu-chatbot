@@ -2,8 +2,8 @@ from django.db import models
 from django.utils import timezone
 
 class UserProfile(models.Model):
-    social_id = models.PositiveIntegerField(verbose_name='ID користувача в телеграмі')
-    username = models.CharField(max_length=128, unique=True, verbose_name='Нік користувача')
+    social_id = models.PositiveIntegerField(unique=True, verbose_name='ID користувача в телеграмі')
+    username = models.CharField(max_length=128, verbose_name='Нік користувача')
     first_name = models.CharField(max_length=128, blank=True, null=True, verbose_name='Ім\'я користувача')
     last_name = models.CharField(max_length=128, blank=True, null=True, verbose_name='Прізвище користувача')
     specialty = models.CharField(max_length=128, blank=True, null=True, verbose_name='Спеціальність студента')
