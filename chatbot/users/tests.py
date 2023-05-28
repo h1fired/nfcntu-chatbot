@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.test import TestCase
 from django.urls import reverse
-from users.models import UserProfile
+from .models import UserProfile
 from django.conf import settings
 
 
