@@ -9,7 +9,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class = UserProfileSerializator
     http_method_names = ['get', 'post', 'put', 'patch']
     lookup_field = 'social_id'
-    # permission_classes = [APIKeyPermission]
+    permission_classes = [APIKeyPermission]
     
     def create(self, request):
         if UserProfile.objects.filter(social_id=request.data['social_id']).exists():
