@@ -3,8 +3,8 @@ from users.models import UserProfile, Specialty, Group
 
 class UserProfileSerializator(serializers.ModelSerializer):
     
-    group = serializers.CharField(source='group.name')
-    specialty = serializers.CharField(source='group.specialty.name')
+    group = serializers.CharField(source='group.name', allow_blank=True, allow_null=True)
+    specialty = serializers.CharField(source='group.specialty.name', allow_blank=True, allow_null=True)
     
     class Meta:
         model = UserProfile

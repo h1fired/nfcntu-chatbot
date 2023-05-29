@@ -27,6 +27,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 class SpecGroupViewset(viewsets.ViewSet):
     
     http_method_names = ['get']
+    permission_classes = [APIKeyPermission]
     
     def list(self, request):
         queryset = Specialty.objects.all()
