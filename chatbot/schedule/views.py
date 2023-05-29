@@ -8,6 +8,7 @@ from users.permissions import APIKeyPermission
 
 class ScheduleViewSet(viewsets.ViewSet):
     
+    http_method_names = ['get']
     permission_classes = [APIKeyPermission]
     
     def list(self, request):

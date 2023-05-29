@@ -1,5 +1,6 @@
 from django.db import models
 from django_jsonform.models.fields import JSONField
+from users.models import Group
 
 class Schedule(models.Model):
     DAYS = [
@@ -17,7 +18,7 @@ class Schedule(models.Model):
         }
     }
     
-    group = models.CharField(max_length=64)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
     day = models.CharField(max_length=32, choices=DAYS)
     subjects = JSONField(schema=SUBJECTS_SCHEMA)
     
