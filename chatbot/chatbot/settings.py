@@ -42,9 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_jsonform',
     # project apps
     'users',
     'contacts',
+    'schedule',
 ]
 
 MIDDLEWARE = [
