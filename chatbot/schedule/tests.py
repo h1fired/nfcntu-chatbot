@@ -24,6 +24,6 @@ class UserProfileAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
     def test_get_group_schedule(self):
-        response = self.client.get(reverse('schedule-group', kwargs={'group': 'test_group'}), None, **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})
+        response = self.client.get('%s?group=test_group' % reverse('schedule-list'), None, **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
