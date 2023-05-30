@@ -1,6 +1,5 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
 from .models import UserProfile, Group, Specialty
 from .serializers import UserProfileSerializator, GroupSerializator, SpecialtySerializator
 from .permissions import APIKeyPermission
@@ -24,18 +23,14 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors)
 
-class SpecGroupViewset(viewsets.ViewSet):
-    
+class SpecialtyViewset(viewsets.ModelViewSet):
+    queryset = Specialty.objects.all()
+    serializer_class = SpecialtySerializator
     http_method_names = ['get']
     permission_classes = [APIKeyPermission]
     
-    def list(self, request):
-        queryset = Specialty.objects.all()
-        serializer = SpecialtySerializator(queryset, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'], url_path='groups', url_name='groups')
-    def get_groups(self, request):
-        queryset = Group.objects.all()
-        serializer = GroupSerializator(queryset, many=True)
-        return Response(serializer.data)
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializator
+    http_method_names = ['get']
+    permission_classes = [APIKeyPermission]
