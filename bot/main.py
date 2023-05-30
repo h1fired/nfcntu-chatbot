@@ -2,7 +2,6 @@ import telebot
 from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-REGISTRATION, SPECIALTY, COURSE, GROUP = range(4)
 
 # Створення об'єкту бота
 bot = telebot.TeleBot('6090788351:AAGxbMW9ENAOK-LsuuS4ORoAn9gYH5iFhBo')
