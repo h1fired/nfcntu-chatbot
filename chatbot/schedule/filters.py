@@ -6,4 +6,4 @@ class ScheduleFilter(filters.FilterSet):
 
     class Meta:
         model = Schedule
-        fields = ['group']
+        fields = ['group', 'day']
