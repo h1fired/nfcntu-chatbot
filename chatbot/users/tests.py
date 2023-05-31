@@ -19,6 +19,8 @@ class UserProfileTests(TestCase):
 class UserProfileAPITest(APITestCase):
     def setUp(self):
         UserProfile.objects.create(social_id='12345678', username='test_user123')
+        specialty = Specialty.objects.create(name='test_specialty')
+        Group.objects.create(name='test_group1', specialty=specialty, course_num=3)
     
     def test_get_users(self):
         response = self.client.get(reverse('users-list'), None, **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})
@@ -28,10 +30,11 @@ class UserProfileAPITest(APITestCase):
         response = self.client.get(reverse('users-detail', kwargs={'social_id': 12345678}), None, **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
-    def test_create_or_get_user(self):
+    def test_create_user(self):
         data = {
-            'social_id': '12345',
-            'username': 'test_create_user1'
+            'social_id': '1234587',
+            'username': 'test_create_user1',
+            'group': 'test_group1',
         }
         response = self.client.post(reverse('users-list'), data, format='json', **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})
         self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -47,12 +50,12 @@ class UserProfileAPITest(APITestCase):
 class GroupAPITest(APITestCase):
     def setUp(self):
         specialty = Specialty.objects.create(name='test_specialty')
-        Group.objects.create(name='test_group1', specialty=specialty)
+        Group.objects.create(name='test_group1', specialty=specialty, course_num=3)
         
     def test_unique(self):
         with self.assertRaises(IntegrityError):
             specialty = Specialty.objects.get(name='test_specialty')
-            Group.objects.create(name='test_group1', specialty=specialty)
+            Group.objects.create(name='test_group1', specialty=specialty, course_num=3)
             
     def test_get_list(self):
         response = self.client.get(reverse('groups-list'), None, **{'HTTP_AUTHORIZATION': f'ApiKey {settings.API_KEY}'})

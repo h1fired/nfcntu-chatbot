@@ -7,8 +7,8 @@ class SpecialtyAdmin(admin.ModelAdmin):
     
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'specialty')
+    list_display = ('id', 'name', 'specialty', 'course_num')
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'social_id', 'username', 'first_name', 'last_name', 'group', 'course_num', 'create_date')
+    list_display = ('id', 'social_id', 'username', 'first_name', 'last_name', 'group', 'create_date')
