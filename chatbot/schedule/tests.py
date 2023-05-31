@@ -11,7 +11,7 @@ class UserProfileAPITest(APITestCase):
     
     def setUp(self):
         specialty = Specialty.objects.create(name='test_specialty')
-        group = Group.objects.create(name='test_group', specialty=specialty)
+        group = Group.objects.create(name='test_group', specialty=specialty, course_num=3)
         Schedule.objects.create(group=group, day='tuesday', subjects=['Математика', 'Алгоритмізація'])
     
     def test_unique_together(self):
