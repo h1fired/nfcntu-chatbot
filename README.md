@@ -37,16 +37,6 @@ headers = {
 }
 ```
 ### Endpoints
-API Endpoints are the code that allows two software programs to communicate with each other connects with the software program. APIs work by sending requests for information from a web application or web server and receiving a response. **Examples:**
+API Endpoints are the code that allows two software programs to communicate with each other connects with the software program. APIs work by sending requests for information from a web application or web server and receiving a response. All Endpoints are on the ```/swagger/``` API page (after starting the server). To access the data, enter the API key (from ```settings.py```) in "Authorization" panel.
 
-| Method  | URL | Description |
-| --- | --- | --- |
-| ```GET```  | ```/api/users/```  | Retrieve all users |
-| ```POST```  | ```/api/users/```  | Create a new user |
-| ```GET```  | ```/api/users/1```  | Retrieve user with ```social_id=1``` |
-| ```PATCH```  | ```/api/users/1```  | Update user with ```social_id=1``` |
-| ```GET```  | ```/api/groups/```  | Retrieve all groups |
-| ```GET```  | ```/api/specialty/```  | Retrieve all specialty |
-| ```GET```  | ```/api/schedule/```  | Retrieve the entire schedule |
-| ```GET```  | ```/api/schedule/?group=І-11```  | Retrieve schedules with ```group=I-11``` |
-| ```GET```  | ```/api/schedule/?group=І-11&day=Monday```  | Retrieve schedules with ```group=I-11``` and ```day=Monday``` |
+
