@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_jsonform',
     'django_filters',
+    'drf_yasg',
     # project apps
     'users',
     'contacts',
@@ -136,4 +137,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Rest Framework
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
+
+# Swagger
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'ApiKey': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+        }
+   }
 }
