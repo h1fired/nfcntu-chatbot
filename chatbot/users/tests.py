@@ -11,6 +11,7 @@ class UserProfileTests(TestCase):
     def test_user_creation(self):
         self.user = UserProfile.objects.create(
             social_id='12345678',
+            chat_id='87654321',
             username='test_user1', 
         )
         self.user.username = 'test_updated_user1'
@@ -18,7 +19,7 @@ class UserProfileTests(TestCase):
 
 class UserProfileAPITest(APITestCase):
     def setUp(self):
-        UserProfile.objects.create(social_id='12345678', username='test_user123')
+        UserProfile.objects.create(social_id='12345678', chat_id='87654321', username='test_user123')
         specialty = Specialty.objects.create(name='test_specialty')
         Group.objects.create(name='test_group1', specialty=specialty, course_num=3)
     
@@ -33,6 +34,7 @@ class UserProfileAPITest(APITestCase):
     def test_create_user(self):
         data = {
             'social_id': '1234587',
+            'chat_id': '8765432',
             'username': 'test_create_user1',
             'group': 'test_group1',
         }

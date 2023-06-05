@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from users.models import UserProfile, Specialty, Group
 
 class UserProfileSerializator(serializers.ModelSerializer):
