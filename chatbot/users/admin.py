@@ -11,4 +11,4 @@ class GroupAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'social_id', 'username', 'first_name', 'last_name', 'group', 'create_date')
+    list_display = ('id', 'chat_id', 'social_id', 'username', 'first_name', 'last_name', 'group', 'create_date')
