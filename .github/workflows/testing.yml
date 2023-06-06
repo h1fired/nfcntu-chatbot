@@ -9,6 +9,7 @@ on:
 env:
   secret_key: ${{ secrets.SECRET_KEY }}
   api_key: ${{ secrets.API_KEY }}
+  TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
 
 jobs:
   build:
