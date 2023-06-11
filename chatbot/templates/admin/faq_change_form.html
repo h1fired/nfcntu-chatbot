@@ -1,0 +1,13 @@
+{% extends 'admin/change_form.html' %}
+
+{% block submit_buttons_bottom %}
+    <div class="submit-row" style="align-items: center;">
+        {% if original.is_sent == False %}
+        <input type="submit" value="Send Answer" name="_send-answer">
+        <input type="submit" value="Decline Question" name="_decline-question">
+        {% endif %}
+        {% if original %}
+        <a href="{% url 'admin:faq_faq_delete' original.id %}" class="deletelink">Delete</a>
+        {% endif %}
+    </div>
+{% endblock %}
