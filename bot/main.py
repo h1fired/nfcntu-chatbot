@@ -1,130 +1,90 @@
+import json
+
 import telebot
 from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import os
 from dotenv import load_dotenv
 
+import BOT_API
+
 load_dotenv()
 
 # Створення об'єкту бота
-bot = telebot.TeleBot(os.environ.get("Telegram_token"))
-
-# Дані про спеціальності, курси та групи
-groups_data = {
-    '029 Інформаційна, бібліотечна та архівна справа': {
-        'Курс 2': ['ІС-21'],
-        'Курс 3': ['ІС-31']
-    },
-    '051 Економіка': {
-        'Курс 1': ['І-11', 'І-12'],
-        'Курс 2': ['І-21(Е-21)'],
-        'Курс 3': ['Е-31 11']
-    },
-    '071 Облік і оподаткування': {
-        'Курс 1': ['І-11', 'І-12'],
-        'Курс 2': ['І-21(Б-21)']
-    },
-    '072 Фінанси, банківська справа та страхування': {
-        'Курс 1': ['І-11', 'І-12'],
-        'Курс 2': ['Ф-21'],
-        'Курс 3': ['Фі-31']
-    },
-    '081 Право': {
-        'Курс 2': ['П-21'],
-        'Курс 3': ['Пі-31']
-    },
-    '122 Комп’ютерні науки': {
-        'Курс 1': ['ІТ-11'],
-        'Курс 2': ['ІТ-21', 'ІТ-22'],
-        'Курс 3': ['ІТ-31', 'ІТ-32'],
-        'Курс 4': ['ІТ-41']
-    },
-    '141 Електроенергетика, електротехніка та електромеханіка': {
-        'Курс 1': ['ЕМ-11'],
-        'Курс 2': ['ЕМ-21'],
-        'Курс 3': ['ЕМ-31'],
-        'Курс 4': ['ЕМ-41']
-    },
-    '192 Будівництво та цивільна інженерія': {
-        'Курс 1': ['ТБ-11'],
-        'Курс 2': ['Група 15', 'Група 16'],
-        'Курс 3': ['ТБ-31'],
-        'Курс 4': ['ТБ-41']
-    },
-    '274 Автомобільний транспорт': {
-        'Курс 1': ['АТ-11', 'АТ-21'],
-        'Курс 2': ['АТ-21', 'АТ-22', 'АТ-23/АТС', 'Аті-23'],
-        'Курс 3': ['АТ-31', 'АТі-32', 'АТі-32/АТС-31'],
-        'Курс 4': ['АТі-41', 'АТ-42']
-    },
-    '275 Транспортні технології (на автомобільному транспорті)': {
-        'Курс 1': ['ТТ-11'],
-        'Курс 2': ['ТТ-21', 'ТТ-22'],
-        'Курс 3': ['ТТм-31', 'ТТмі-32'],
-        'Курс 4': ['ТТ-41', 'ТТі-42']
-    }
-}
+bot = telebot.TeleBot(os.environ.get("TELEGRAM_TOKEN"))
 
 @bot.message_handler(commands=['start'])
 def start_registration(message):
     chat_id = message.chat.id
-    bot.send_message(chat_id, "Доброго дня! Для реєстрації введіть ваше прізвище, ім'я та по батькові через пробіл:")
-    bot.register_next_step_handler(message, ask_fullname)
+    bot.send_message(chat_id, "Доброго дня! Для реєстрації введіть ваше Ім'я:")
+    bot.register_next_step_handler(message, ask_name)
 
-# Функція для запитування повного імені
-def ask_fullname(message):
+def ask_name(message):
+    '''Функція для запитування імені'''
     chat_id = message.chat.id
-    fullname = message.text.split(" ")
-    if len(fullname) != 3:
-        bot.send_message(chat_id, "Будь ласка, введіть прізвище, ім'я та по батькові через пробіл:")
-        bot.register_next_step_handler(message, ask_fullname)
-        return
-
+    first_name = message.text.strip()
     user_id = message.from_user.id
-    data = {'user_id': user_id, 'fullname': fullname}
-    # Отримуємо дані про спеціальності з groups_data
-    specialties = list(groups_data.keys())
-    reply_keyboard = [specialties]
+    username = message.from_user.username
+    data = {'social_id': user_id, 'chat_id': chat_id, 'first_name': first_name, 'username': username}
+    bot.send_message(chat_id, "Тепер введіть ваше прізвище:")
+    bot.register_next_step_handler(message, ask_surname, data)
+
+def ask_surname(message, data):
+    '''Функція для запитування прізвища'''
+    chat_id = message.chat.id
+    last_name = message.text.strip()
+    data['last_name'] = last_name
+    json_string = json.dumps(BOT_API.get_specialty())
+    specialty_data = json.loads(json_string)
+    specialty = [item['name'] for item in specialty_data]
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    markup.add(*[types.KeyboardButton(name) for name in reply_keyboard[0]])
+    markup.add(*[types.KeyboardButton(name) for name in specialty])
     bot.send_message(chat_id, "Виберіть вашу спеціальність:", reply_markup=markup)
     bot.register_next_step_handler(message, select_specialty, data)
 
-# Функція для обробки вибору спеціальності
 def select_specialty(message, data):
+    '''Функція для обробки вибору спеціальності і вибору курсу'''
     chat_id = message.chat.id
     specialty = message.text
     data['specialty'] = specialty
     # Отримуємо дані про курси для обраної спеціальності
-    courses = groups_data.get(specialty, {})
-    reply_keyboard = list(courses.keys())
+    # Зчитуємо дані з JSON
+    json_string = json.dumps(BOT_API.get_group())
+    courses_data = json.loads(json_string)
+    # Фільтруємо курси за вибраною спеціальністю
+    courses = [course["course_num"] for course in courses_data if course["specialty"] == specialty]
+    courses.sort(key=int)
+    # Створюємо клавіатуру з кнопками курсів
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    markup.add(*[types.KeyboardButton(name) for name in reply_keyboard])
+    markup.add(*[types.KeyboardButton(course) for course in courses])
     bot.send_message(chat_id, "Виберіть курс:", reply_markup=markup)
-    bot.register_next_step_handler(message, select_course, data)
+    bot.register_next_step_handler(message, select_course, data, specialty)
 
-# Функція для обробки вибору курсу
-def select_course(message, data):
+def select_course(message, data, specialty):
+    '''Функція для обробки вибору вибору курсу та вибір групи'''
     chat_id = message.chat.id
-    course = message.text
-    data['course'] = course
-    # Отримуємо дані про групи для обраної спеціальності та курсу
-    specialty = data['specialty']
-    groups = groups_data.get(specialty, {}).get(course, [])
-    reply_keyboard = [groups]
+    course = int(message.text)
+    # Зчитуємо дані з JSON
+    json_string = json.dumps(BOT_API.get_group())
+    courses_data = json.loads(json_string)
+    # Фільтруємо Групи за вибраною спеціальністю та курсом
+    groups = [group["name"] for group in courses_data if
+              group["specialty"] == specialty and group["course_num"] == course]
+    # Створюємо клавіатуру з кнопками груп
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    markup.add(*[types.KeyboardButton(name) for name in reply_keyboard[0]])
+    markup.add(*[types.KeyboardButton(group) for group in groups])
     bot.send_message(chat_id, "Виберіть групу:", reply_markup=markup)
     bot.register_next_step_handler(message, select_group, data)
 
-# Функція для обробки вибору групи
 def select_group(message, data):
+    '''Функція для обробки вибору вибору групи та реєстрація користувача на сервері'''
     chat_id = message.chat.id
     group = message.text
     data['group'] = group
-    # Тут відправляємо дані студента студента на сервер
+    # Тут відправляємо дані студента на сервер
+    BOT_API.post_user(data)
     # Виводимо повідомлення про успішну реєстрацію
-    registration_data = f"Прізвище: {data['fullname'][0]}\nІм'я: {data['fullname'][1]}\nПо батькові: {data['fullname'][2]}\nСпеціальність: {data['specialty']}\nКурс: {data['course']}\nГрупа: {data['group']}"
+    registration_data = f"Прізвище: {data['first_name']}\nІм'я: {data['last_name']}\nСпеціальність: {data['specialty']}\nГрупа: {data['group']}"
 
     keyboard = InlineKeyboardMarkup(row_width=1)
     button1 = InlineKeyboardButton("Розклад", callback_data="action1")
