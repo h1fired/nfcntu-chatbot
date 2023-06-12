@@ -12,7 +12,6 @@ load_dotenv()
 
 # Створення об'єкту бота
 bot = telebot.TeleBot(os.environ.get("TELEGRAM_TOKEN"))
-
 @bot.message_handler(commands=['start'])
 def start_registration(message):
     chat_id = message.chat.id
@@ -34,9 +33,7 @@ def ask_surname(message, data):
     chat_id = message.chat.id
     last_name = message.text.strip()
     data['last_name'] = last_name
-    json_string = json.dumps(BOT_API.get_specialty())
-    specialty_data = json.loads(json_string)
-    specialty = [item['name'] for item in specialty_data]
+    specialty = [item['name'] for item in BOT_API.get_specialty()]
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup.add(*[types.KeyboardButton(name) for name in specialty])
     bot.send_message(chat_id, "Виберіть вашу спеціальність:", reply_markup=markup)
@@ -48,28 +45,22 @@ def select_specialty(message, data):
     specialty = message.text
     data['specialty'] = specialty
     # Отримуємо дані про курси для обраної спеціальності
-    # Зчитуємо дані з JSON
-    json_string = json.dumps(BOT_API.get_group())
-    courses_data = json.loads(json_string)
     # Фільтруємо курси за вибраною спеціальністю
-    courses = [course["course_num"] for course in courses_data if course["specialty"] == specialty]
+    courses = [course["course_num"] for course in BOT_API.get_group() if course["specialty"] == specialty]
     courses.sort(key=int)
     # Створюємо клавіатуру з кнопками курсів
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup.add(*[types.KeyboardButton(course) for course in courses])
     bot.send_message(chat_id, "Виберіть курс:", reply_markup=markup)
-    bot.register_next_step_handler(message, select_course, data, specialty)
+    bot.register_next_step_handler(message, select_course, data)
 
-def select_course(message, data, specialty):
+def select_course(message, data):
     '''Функція для обробки вибору вибору курсу та вибір групи'''
     chat_id = message.chat.id
     course = int(message.text)
-    # Зчитуємо дані з JSON
-    json_string = json.dumps(BOT_API.get_group())
-    courses_data = json.loads(json_string)
     # Фільтруємо Групи за вибраною спеціальністю та курсом
-    groups = [group["name"] for group in courses_data if
-              group["specialty"] == specialty and group["course_num"] == course]
+    groups = [group["name"] for group in BOT_API.get_group() if
+              group["specialty"] == data['specialty'] and group["course_num"] == course]
     # Створюємо клавіатуру з кнопками груп
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     markup.add(*[types.KeyboardButton(group) for group in groups])
@@ -84,7 +75,7 @@ def select_group(message, data):
     # Тут відправляємо дані студента на сервер
     BOT_API.post_user(data)
     # Виводимо повідомлення про успішну реєстрацію
-    registration_data = f"Прізвище: {data['first_name']}\nІм'я: {data['last_name']}\nСпеціальність: {data['specialty']}\nГрупа: {data['group']}"
+    registration_data = f"Прізвище: {data['last_name']}\nІм'я: {data['first_name']}\nСпеціальність: {data['specialty']}\nГрупа: {data['group']}"
 
     keyboard = InlineKeyboardMarkup(row_width=1)
     button1 = InlineKeyboardButton("Розклад", callback_data="action1")
