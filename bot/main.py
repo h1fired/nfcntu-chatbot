@@ -11,12 +11,15 @@ import BOT_API
 load_dotenv()
 
 # Створення об'єкту бота
-bot = telebot.TeleBot(os.environ.get("TELEGRAM_TOKEN"))
+bot = telebot.TeleBot(os.environ.get("TELEGRAM_BOT_TOKEN"))
+
+
 @bot.message_handler(commands=['start'])
 def start_registration(message):
     chat_id = message.chat.id
     bot.send_message(chat_id, "Доброго дня! Для реєстрації введіть ваше Ім'я:")
     bot.register_next_step_handler(message, ask_name)
+
 
 def ask_name(message):
     '''Функція для запитування імені'''
@@ -28,6 +31,7 @@ def ask_name(message):
     bot.send_message(chat_id, "Тепер введіть ваше прізвище:")
     bot.register_next_step_handler(message, ask_surname, data)
 
+
 def ask_surname(message, data):
     '''Функція для запитування прізвища'''
     chat_id = message.chat.id
@@ -38,6 +42,7 @@ def ask_surname(message, data):
     markup.add(*[types.KeyboardButton(name) for name in specialty])
     bot.send_message(chat_id, "Виберіть вашу спеціальність:", reply_markup=markup)
     bot.register_next_step_handler(message, select_specialty, data)
+
 
 def select_specialty(message, data):
     '''Функція для обробки вибору спеціальності і вибору курсу'''
@@ -54,6 +59,7 @@ def select_specialty(message, data):
     bot.send_message(chat_id, "Виберіть курс:", reply_markup=markup)
     bot.register_next_step_handler(message, select_course, data)
 
+
 def select_course(message, data):
     '''Функція для обробки вибору вибору курсу та вибір групи'''
     chat_id = message.chat.id
@@ -66,6 +72,7 @@ def select_course(message, data):
     markup.add(*[types.KeyboardButton(group) for group in groups])
     bot.send_message(chat_id, "Виберіть групу:", reply_markup=markup)
     bot.register_next_step_handler(message, select_group, data)
+
 
 def select_group(message, data):
     '''Функція для обробки вибору вибору групи та реєстрація користувача на сервері'''
@@ -89,7 +96,6 @@ def select_group(message, data):
     bot.send_message(chat_id, f"Ви успішно зареєстровані!\n\n{registration_data}", reply_markup=keyboard)
 
 
-
 def contact(chat_id):
     keyboard = InlineKeyboardMarkup(row_width=1)
     button1 = InlineKeyboardButton("Студенту", callback_data="cont_stud")
@@ -101,11 +107,44 @@ def contact(chat_id):
     bot.send_message(chat_id, "Контакти:", reply_markup=keyboard)
 
 
+def schedule_group(chat_id):
+    keyboard = InlineKeyboardMarkup(row_width=1)
+
+    groups = BOT_API.get_group()
+    for group in groups:
+        button = InlineKeyboardButton(group['name'], callback_data=f'group_{group["name"]}')
+        keyboard.add(button)
+
+    bot.send_message(chat_id, "Виберіть групу:", reply_markup=keyboard)
+
+
+def schedule_day(chat_id, group):
+    keyboard = InlineKeyboardMarkup(row_width=1)
+
+    days = ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця"]
+
+    for day in days:
+        button = InlineKeyboardButton(day, callback_data=f'schedule_{group}_{day}')
+        keyboard.add(button)
+
+    bot.send_message(chat_id, "Виберіть день:", reply_markup=keyboard)
+
+
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callback_query(call):
     chat_id = call.message.chat.id
     if call.data == "action1":
-        bot.send_message(chat_id, "Розклад")
+        schedule_group(chat_id)
+    elif call.data.startswith('group_'):
+        group_name = call.data.split("_")[1]
+        schedule_day(chat_id, group_name)
+    elif call.data.startswith('schedule_'):
+        data = call.data.split("_")
+        schedule_json = BOT_API.get_schedule(group=data[1], day=data[2])
+        schedule_str = '\n'.join(
+            [f'{str(index + 1)}. {subject}' for index, subject in enumerate(schedule_json[0]['subjects'])])
+        bot.send_message(chat_id, f'*Розклад для групи {data[1]}, {data[2].lower()}:*\n{schedule_str}',
+                         parse_mode="Markdown")
     elif call.data == "contact":
         contact(chat_id)
     elif call.data == "cont_stud":
